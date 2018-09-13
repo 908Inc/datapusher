@@ -345,6 +345,7 @@ def push_to_datastore(task_id, input, dry_run=False):
 
     data = input['metadata']
 
+
     ckan_url = data['ckan_url']
     resource_id = data['resource_id']
     api_key = input.get('api_key')
@@ -441,8 +442,21 @@ def push_to_datastore(task_id, input, dry_run=False):
         except:
             raise util.JobError(e)
 
+
     row_set = table_set.tables.pop()
     offset, headers = messytables.headers_guess(row_set.sample)
+
+    from collections import Counter
+
+    def get_unique_fields(field_list):
+        counts = Counter(field_list)
+        for s, num in counts.items():
+            if num > 1:
+                for suffix in range(1, num + 1):
+                    field_list[field_list.index(s)] = str(suffix) + '_' + s
+        return field_list
+
+    headers = get_unique_fields(headers)
 
     existing = datastore_resource_exists(resource_id, api_key, ckan_url)
     existing_info = None
@@ -497,6 +511,7 @@ def push_to_datastore(task_id, input, dry_run=False):
                      for field in zip(headers, types)]
 
     # Maintain data dictionaries from matching column names
+
     if existing_info:
         for h in headers_dicts:
             if h['id'] in existing_info:
