@@ -14,6 +14,7 @@ import decimal
 import hashlib
 import time
 import tempfile
+import re
 
 import messytables
 from slugify import slugify
@@ -452,11 +453,18 @@ def push_to_datastore(task_id, input, dry_run=False):
         counts = Counter(field_list)
         for s, num in counts.items():
             if num > 1:
-                for suffix in range(1, num + 1):
-                    field_list[field_list.index(s)] = str(suffix) + '_' + s
+                for prefix in range(1, num + 1):
+                    field_list[field_list.index(s)] = str(prefix) + '_' + s
         return field_list
 
     headers = get_unique_fields(headers)
+
+    # Crop field name up to 33 characters (cyrillic) or 63 (non cyrillic)
+    max_field_length = 63
+    for idx, h in enumerate(headers):
+        if bool(re.search('[а-яА-Я]', h)):
+            max_field_length = 33
+        headers[idx] = h[:max_field_length]
 
     existing = datastore_resource_exists(resource_id, api_key, ckan_url)
     existing_info = None
