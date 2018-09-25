@@ -454,7 +454,7 @@ def push_to_datastore(task_id, input, dry_run=False):
         for s, num in counts.items():
             if num > 1:
                 for prefix in range(1, num + 1):
-                    field_list[field_list.index(s)] = str(prefix) + '_' + s
+                    field_list[field_list.index(s)] =str(prefix) + '_' + str(s)
         return field_list
 
     headers = get_unique_fields(headers)
@@ -462,9 +462,9 @@ def push_to_datastore(task_id, input, dry_run=False):
     # Crop field name up to 33 characters (cyrillic) or 63 (non cyrillic)
     max_field_length = 63
     for idx, h in enumerate(headers):
-        if bool(re.search('[а-яА-Я]', h)):
+        if bool(re.search('[а-яА-Я]', str(h))):
             max_field_length = 33
-        headers[idx] = h[:max_field_length]
+        headers[idx] = str(h)[:max_field_length]
 
     existing = datastore_resource_exists(resource_id, api_key, ckan_url)
     existing_info = None
