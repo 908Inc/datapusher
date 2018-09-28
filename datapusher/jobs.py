@@ -459,12 +459,9 @@ def push_to_datastore(task_id, input, dry_run=False):
 
     headers = get_unique_fields(headers)
 
-    # Crop field name up to 33 characters (cyrillic) or 63 (non cyrillic)
-    max_field_length = 63
+    max_field_length = 33
     for idx, h in enumerate(headers):
-        if bool(re.search('[а-яА-Я]', str(h))):
-            max_field_length = 33
-        headers[idx] = str(h)[:max_field_length]
+        headers[idx] = unicode(h)[:max_field_length]
 
     existing = datastore_resource_exists(resource_id, api_key, ckan_url)
     existing_info = None
@@ -473,7 +470,7 @@ def push_to_datastore(task_id, input, dry_run=False):
                              for f in existing.get('fields', []) if 'info' in f)
 
     # Some headers might have been converted from strings to floats and such.
-    headers = [unicode(header) for header in headers]
+    # headers = [unicode(header) for header in headers]
 
     row_set.register_processor(messytables.headers_processor(headers))
     row_set.register_processor(messytables.offset_processor(offset + 1))
