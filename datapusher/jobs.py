@@ -454,7 +454,7 @@ def push_to_datastore(task_id, input, dry_run=False):
         for s, num in counts.items():
             if num > 1:
                 for prefix in range(1, num + 1):
-                    field_list[field_list.index(s)] =str(prefix) + '_' + str(s)
+                    field_list[field_list.index(s)] = unicode(prefix) + u'_' + unicode(s)
         return field_list
 
     headers = get_unique_fields(headers)
